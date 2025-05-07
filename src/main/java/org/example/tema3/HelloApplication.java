@@ -67,13 +67,8 @@ public class HelloApplication extends Application {
     private MenuBar createMenuBar() {
         MenuBar menuBar = new MenuBar();
 
-        // Meniu Fișier
-        Menu fileMenu = new Menu(resourceBundle.getString("menu.file"));
-        MenuItem exitMenuItem = new MenuItem(resourceBundle.getString("menu.file.exit"));
-        exitMenuItem.setOnAction(event -> confirmExit());
-        fileMenu.getItems().add(exitMenuItem);
 
-        // Meniu Limbă
+        // Meniu limba
         Menu languageMenu = new Menu(resourceBundle.getString("menu.language"));
         MenuItem englishMenuItem = new MenuItem(resourceBundle.getString("menu.language.english"));
         MenuItem frenchMenuItem = new MenuItem(resourceBundle.getString("menu.language.french"));
@@ -85,13 +80,8 @@ public class HelloApplication extends Application {
 
         languageMenu.getItems().addAll(englishMenuItem, frenchMenuItem, spanishMenuItem);
 
-        // Meniu Ajutor
-        Menu helpMenu = new Menu(resourceBundle.getString("menu.help"));
-        MenuItem aboutMenuItem = new MenuItem(resourceBundle.getString("menu.help.about"));
-        aboutMenuItem.setOnAction(event -> showAboutDialog());
-        helpMenu.getItems().add(aboutMenuItem);
 
-        menuBar.getMenus().addAll(fileMenu, languageMenu, helpMenu);
+        menuBar.getMenus().addAll( languageMenu);
 
         return menuBar;
     }

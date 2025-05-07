@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import util.LanguageManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -66,8 +67,8 @@ public class StoreController {
     private ObservableList<Store> storeList;
     private ResourceBundle resources;
 
-    public void initialize(ResourceBundle resources) {
-        this.resources = resources;
+    public void initialize() {
+        this.resources = LanguageManager.getResourceBundle();
         storeDAO = new StoreDAO();
         storeList = FXCollections.observableArrayList();
 

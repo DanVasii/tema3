@@ -17,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import util.LanguageManager;
 
 import java.io.File;
 import java.util.HashMap;
@@ -39,8 +40,8 @@ public class SearchController {
     private InventoryDAO inventoryDAO;
     private ResourceBundle resources;
 
-    public void initialize(ResourceBundle resources) {
-        this.resources = resources;
+    public void initialize() {
+        this.resources = LanguageManager.getResourceBundle();
         inventoryDAO = new InventoryDAO();
 
         // Configurare acțiuni butoane

@@ -2,7 +2,9 @@ package dao;
 
 import model.Color;
 import model.Inventory;
+import model.Manufacturer;
 import model.Shoe;
+import model.ShoeType;
 import model.ShoeVariant;
 import model.Size;
 import model.Store;
@@ -15,36 +17,38 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class InventoryDAO {
-
-    private StoreDAO storeDAO;
-    private ShoeVariantDAO variantDAO;
-    private SizeDAO sizeDAO;
-
-    public InventoryDAO() {
-        this.storeDAO = new StoreDAO();
-        this.variantDAO = new ShoeVariantDAO();
-        this.sizeDAO = new SizeDAO();
-    }
 
     public List<Inventory> getAllInventory() {
         List<Inventory> inventoryList = new ArrayList<>();
         String query = "SELECT * FROM inventory";
 
+        // Step 1: Load basic inventory data
         try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                Inventory inventory = mapResultSetToInventory(rs);
+                Inventory inventory = new Inventory();
+                inventory.setInventoryId(rs.getInt("inventory_id"));
+                inventory.setStoreId(rs.getInt("store_id"));
+                inventory.setVariantId(rs.getInt("variant_id"));
+                inventory.setSizeId(rs.getInt("size_id"));
+                inventory.setStock(rs.getInt("stock"));
                 inventoryList.add(inventory);
             }
         } catch (SQLException e) {
             System.err.println("Error fetching inventory: " + e.getMessage());
+            return inventoryList;
         }
+
+        // Step 2: Load associated data
+        loadAssociatedData(inventoryList);
 
         return inventoryList;
     }
@@ -53,6 +57,7 @@ public class InventoryDAO {
         List<Inventory> inventoryList = new ArrayList<>();
         String query = "SELECT * FROM inventory WHERE store_id = ?";
 
+        // Step 1: Load basic inventory data
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -60,13 +65,22 @@ public class InventoryDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Inventory inventory = mapResultSetToInventory(rs);
+                    Inventory inventory = new Inventory();
+                    inventory.setInventoryId(rs.getInt("inventory_id"));
+                    inventory.setStoreId(rs.getInt("store_id"));
+                    inventory.setVariantId(rs.getInt("variant_id"));
+                    inventory.setSizeId(rs.getInt("size_id"));
+                    inventory.setStock(rs.getInt("stock"));
                     inventoryList.add(inventory);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error fetching inventory by store: " + e.getMessage());
+            return inventoryList;
         }
+
+        // Step 2: Load associated data
+        loadAssociatedData(inventoryList);
 
         return inventoryList;
     }
@@ -78,6 +92,7 @@ public class InventoryDAO {
                 "JOIN shoe s ON sv.shoe_id = s.shoe_id " +
                 "WHERE i.store_id = ? AND i.stock = 0";
 
+        // Step 1: Load basic inventory data
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -85,13 +100,22 @@ public class InventoryDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Inventory inventory = mapResultSetToInventory(rs);
+                    Inventory inventory = new Inventory();
+                    inventory.setInventoryId(rs.getInt("inventory_id"));
+                    inventory.setStoreId(rs.getInt("store_id"));
+                    inventory.setVariantId(rs.getInt("variant_id"));
+                    inventory.setSizeId(rs.getInt("size_id"));
+                    inventory.setStock(rs.getInt("stock"));
                     outOfStockList.add(inventory);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error fetching out of stock items: " + e.getMessage());
+            return outOfStockList;
         }
+
+        // Step 2: Load associated data
+        loadAssociatedData(outOfStockList);
 
         return outOfStockList;
     }
@@ -100,6 +124,7 @@ public class InventoryDAO {
         List<Inventory> filteredList = new ArrayList<>();
         String query = "SELECT * FROM inventory WHERE store_id = ? AND stock " + (available ? "> 0" : "= 0");
 
+        // Step 1: Load basic inventory data
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -107,13 +132,22 @@ public class InventoryDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Inventory inventory = mapResultSetToInventory(rs);
+                    Inventory inventory = new Inventory();
+                    inventory.setInventoryId(rs.getInt("inventory_id"));
+                    inventory.setStoreId(rs.getInt("store_id"));
+                    inventory.setVariantId(rs.getInt("variant_id"));
+                    inventory.setSizeId(rs.getInt("size_id"));
+                    inventory.setStock(rs.getInt("stock"));
                     filteredList.add(inventory);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error filtering inventory by availability: " + e.getMessage());
+            return filteredList;
         }
+
+        // Step 2: Load associated data
+        loadAssociatedData(filteredList);
 
         return filteredList;
     }
@@ -125,6 +159,7 @@ public class InventoryDAO {
                 "JOIN shoe s ON sv.shoe_id = s.shoe_id " +
                 "WHERE i.store_id = ? AND s.type_id = ?";
 
+        // Step 1: Load basic inventory data
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -133,13 +168,22 @@ public class InventoryDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Inventory inventory = mapResultSetToInventory(rs);
+                    Inventory inventory = new Inventory();
+                    inventory.setInventoryId(rs.getInt("inventory_id"));
+                    inventory.setStoreId(rs.getInt("store_id"));
+                    inventory.setVariantId(rs.getInt("variant_id"));
+                    inventory.setSizeId(rs.getInt("size_id"));
+                    inventory.setStock(rs.getInt("stock"));
                     filteredList.add(inventory);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error filtering inventory by type: " + e.getMessage());
+            return filteredList;
         }
+
+        // Step 2: Load associated data
+        loadAssociatedData(filteredList);
 
         return filteredList;
     }
@@ -150,6 +194,7 @@ public class InventoryDAO {
                 "JOIN shoe_variant sv ON i.variant_id = sv.variant_id " +
                 "WHERE i.store_id = ? AND sv.color_id = ?";
 
+        // Step 1: Load basic inventory data
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -158,13 +203,22 @@ public class InventoryDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Inventory inventory = mapResultSetToInventory(rs);
+                    Inventory inventory = new Inventory();
+                    inventory.setInventoryId(rs.getInt("inventory_id"));
+                    inventory.setStoreId(rs.getInt("store_id"));
+                    inventory.setVariantId(rs.getInt("variant_id"));
+                    inventory.setSizeId(rs.getInt("size_id"));
+                    inventory.setStock(rs.getInt("stock"));
                     filteredList.add(inventory);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error filtering inventory by color: " + e.getMessage());
+            return filteredList;
         }
+
+        // Step 2: Load associated data
+        loadAssociatedData(filteredList);
 
         return filteredList;
     }
@@ -176,6 +230,7 @@ public class InventoryDAO {
                 "JOIN shoe s ON sv.shoe_id = s.shoe_id " +
                 "WHERE i.store_id = ? AND s.manufacturer_id = ?";
 
+        // Step 1: Load basic inventory data
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -184,13 +239,22 @@ public class InventoryDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Inventory inventory = mapResultSetToInventory(rs);
+                    Inventory inventory = new Inventory();
+                    inventory.setInventoryId(rs.getInt("inventory_id"));
+                    inventory.setStoreId(rs.getInt("store_id"));
+                    inventory.setVariantId(rs.getInt("variant_id"));
+                    inventory.setSizeId(rs.getInt("size_id"));
+                    inventory.setStock(rs.getInt("stock"));
                     filteredList.add(inventory);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error filtering inventory by manufacturer: " + e.getMessage());
+            return filteredList;
         }
+
+        // Step 2: Load associated data
+        loadAssociatedData(filteredList);
 
         return filteredList;
     }
@@ -202,6 +266,7 @@ public class InventoryDAO {
                 "JOIN shoe s ON sv.shoe_id = s.shoe_id " +
                 "WHERE s.model LIKE ?";
 
+        // Step 1: Load basic inventory data
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -209,13 +274,22 @@ public class InventoryDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Inventory inventory = mapResultSetToInventory(rs);
+                    Inventory inventory = new Inventory();
+                    inventory.setInventoryId(rs.getInt("inventory_id"));
+                    inventory.setStoreId(rs.getInt("store_id"));
+                    inventory.setVariantId(rs.getInt("variant_id"));
+                    inventory.setSizeId(rs.getInt("size_id"));
+                    inventory.setStock(rs.getInt("stock"));
                     searchResults.add(inventory);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error searching inventory by model: " + e.getMessage());
+            return searchResults;
         }
+
+        // Step 2: Load associated data
+        loadAssociatedData(searchResults);
 
         return searchResults;
     }
@@ -365,19 +439,327 @@ public class InventoryDAO {
         return outOfStockData;
     }
 
-    private Inventory mapResultSetToInventory(ResultSet rs) throws SQLException {
-        Inventory inventory = new Inventory();
-        inventory.setInventoryId(rs.getInt("inventory_id"));
-        inventory.setStoreId(rs.getInt("store_id"));
-        inventory.setVariantId(rs.getInt("variant_id"));
-        inventory.setSizeId(rs.getInt("size_id"));
-        inventory.setStock(rs.getInt("stock"));
+    // Helper method to load all associated data for a list of inventory items
+    private void loadAssociatedData(List<Inventory> inventoryList) {
+        if (inventoryList.isEmpty()) return;
 
-        // Încărcare date asociate
-        inventory.setStore(storeDAO.getStoreById(inventory.getStoreId()));
-        inventory.setVariant(variantDAO.getVariantById(inventory.getVariantId()));
-        inventory.setSize(sizeDAO.getSizeById(inventory.getSizeId()));
+        // Collect all store IDs, variant IDs, and size IDs
+        Set<Integer> storeIds = new HashSet<>();
+        Set<Integer> variantIds = new HashSet<>();
+        Set<Integer> sizeIds = new HashSet<>();
 
-        return inventory;
+        for (Inventory inventory : inventoryList) {
+            storeIds.add(inventory.getStoreId());
+            variantIds.add(inventory.getVariantId());
+            sizeIds.add(inventory.getSizeId());
+        }
+
+        // Load all stores, variants, and sizes
+        Map<Integer, Store> stores = loadStoresByIds(storeIds);
+        Map<Integer, ShoeVariant> variants = loadVariantsByIds(variantIds);
+        Map<Integer, Size> sizes = loadSizesByIds(sizeIds);
+
+        // Assign associated data to each inventory item
+        for (Inventory inventory : inventoryList) {
+            inventory.setStore(stores.get(inventory.getStoreId()));
+            inventory.setVariant(variants.get(inventory.getVariantId()));
+            inventory.setSize(sizes.get(inventory.getSizeId()));
+        }
+    }
+
+    private Map<Integer, Store> loadStoresByIds(Set<Integer> storeIds) {
+        Map<Integer, Store> storesMap = new HashMap<>();
+        if (storeIds.isEmpty()) return storesMap;
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < storeIds.size(); i++) {
+            if (i > 0) placeholders.append(",");
+            placeholders.append("?");
+        }
+
+        String query = "SELECT * FROM store WHERE store_id IN (" + placeholders + ")";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            int paramIndex = 1;
+            for (Integer id : storeIds) {
+                pstmt.setInt(paramIndex++, id);
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Store store = new Store();
+                    store.setStoreId(rs.getInt("store_id"));
+                    store.setName(rs.getString("name"));
+                    store.setAddress(rs.getString("address"));
+                    store.setPhone(rs.getString("phone"));
+                    store.setEmail(rs.getString("email"));
+                    store.setOpeningHours(rs.getString("opening_hours"));
+                    storesMap.put(store.getStoreId(), store);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading stores: " + e.getMessage());
+        }
+
+        return storesMap;
+    }
+
+    private Map<Integer, Size> loadSizesByIds(Set<Integer> sizeIds) {
+        Map<Integer, Size> sizesMap = new HashMap<>();
+        if (sizeIds.isEmpty()) return sizesMap;
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < sizeIds.size(); i++) {
+            if (i > 0) placeholders.append(",");
+            placeholders.append("?");
+        }
+
+        String query = "SELECT * FROM size WHERE size_id IN (" + placeholders + ")";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            int paramIndex = 1;
+            for (Integer id : sizeIds) {
+                pstmt.setInt(paramIndex++, id);
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Size size = new Size();
+                    size.setSizeId(rs.getInt("size_id"));
+                    size.setEuSize(rs.getDouble("eu_size"));
+                    size.setUkSize(rs.getDouble("uk_size"));
+                    size.setUsSize(rs.getDouble("us_size"));
+                    sizesMap.put(size.getSizeId(), size);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading sizes: " + e.getMessage());
+        }
+
+        return sizesMap;
+    }
+
+    private Map<Integer, ShoeVariant> loadVariantsByIds(Set<Integer> variantIds) {
+        Map<Integer, ShoeVariant> variantsMap = new HashMap<>();
+        if (variantIds.isEmpty()) return variantsMap;
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < variantIds.size(); i++) {
+            if (i > 0) placeholders.append(",");
+            placeholders.append("?");
+        }
+
+        String query = "SELECT * FROM shoe_variant WHERE variant_id IN (" + placeholders + ")";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            int paramIndex = 1;
+            for (Integer id : variantIds) {
+                pstmt.setInt(paramIndex++, id);
+            }
+
+            Map<Integer, ShoeVariant> variants = new HashMap<>();
+            Set<Integer> shoeIds = new HashSet<>();
+            Set<Integer> colorIds = new HashSet<>();
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    ShoeVariant variant = new ShoeVariant();
+                    variant.setVariantId(rs.getInt("variant_id"));
+                    variant.setShoeId(rs.getInt("shoe_id"));
+                    variant.setColorId(rs.getInt("color_id"));
+                    variant.setImagePath(rs.getString("image_path"));
+                    variants.put(variant.getVariantId(), variant);
+
+                    shoeIds.add(variant.getShoeId());
+                    colorIds.add(variant.getColorId());
+                }
+            }
+
+            // Load all shoes and colors
+            Map<Integer, Shoe> shoes = loadShoesByIds(shoeIds);
+            Map<Integer, Color> colors = loadColorsByIds(colorIds);
+
+            // Assign shoes and colors to variants
+            for (ShoeVariant variant : variants.values()) {
+                variant.setShoe(shoes.get(variant.getShoeId()));
+                variant.setColor(colors.get(variant.getColorId()));
+                variantsMap.put(variant.getVariantId(), variant);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading variants: " + e.getMessage());
+        }
+
+        return variantsMap;
+    }
+
+    private Map<Integer, Shoe> loadShoesByIds(Set<Integer> shoeIds) {
+        Map<Integer, Shoe> shoesMap = new HashMap<>();
+        if (shoeIds.isEmpty()) return shoesMap;
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < shoeIds.size(); i++) {
+            if (i > 0) placeholders.append(",");
+            placeholders.append("?");
+        }
+
+        String query = "SELECT * FROM shoe WHERE shoe_id IN (" + placeholders + ")";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            int paramIndex = 1;
+            for (Integer id : shoeIds) {
+                pstmt.setInt(paramIndex++, id);
+            }
+
+            Map<Integer, Shoe> shoes = new HashMap<>();
+            Set<Integer> manufacturerIds = new HashSet<>();
+            Set<Integer> typeIds = new HashSet<>();
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Shoe shoe = new Shoe();
+                    shoe.setShoeId(rs.getInt("shoe_id"));
+                    shoe.setModel(rs.getString("model"));
+                    shoe.setManufacturerId(rs.getInt("manufacturer_id"));
+                    shoe.setTypeId(rs.getInt("type_id"));
+                    shoe.setPrice(rs.getDouble("price"));
+                    shoe.setDescription(rs.getString("description"));
+                    shoes.put(shoe.getShoeId(), shoe);
+
+                    manufacturerIds.add(shoe.getManufacturerId());
+                    typeIds.add(shoe.getTypeId());
+                }
+            }
+
+            // Load all manufacturers and types
+            Map<Integer, Manufacturer> manufacturers = loadManufacturersByIds(manufacturerIds);
+            Map<Integer, ShoeType> types = loadShoeTypesByIds(typeIds);
+
+            // Assign manufacturers and types to shoes
+            for (Shoe shoe : shoes.values()) {
+                shoe.setManufacturer(manufacturers.get(shoe.getManufacturerId()));
+                shoe.setType(types.get(shoe.getTypeId()));
+                shoesMap.put(shoe.getShoeId(), shoe);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading shoes: " + e.getMessage());
+        }
+
+        return shoesMap;
+    }
+
+    private Map<Integer, Manufacturer> loadManufacturersByIds(Set<Integer> manufacturerIds) {
+        Map<Integer, Manufacturer> manufacturersMap = new HashMap<>();
+        if (manufacturerIds.isEmpty()) return manufacturersMap;
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < manufacturerIds.size(); i++) {
+            if (i > 0) placeholders.append(",");
+            placeholders.append("?");
+        }
+
+        String query = "SELECT * FROM manufacturer WHERE manufacturer_id IN (" + placeholders + ")";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            int paramIndex = 1;
+            for (Integer id : manufacturerIds) {
+                pstmt.setInt(paramIndex++, id);
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Manufacturer manufacturer = new Manufacturer();
+                    manufacturer.setManufacturerId(rs.getInt("manufacturer_id"));
+                    manufacturer.setName(rs.getString("name"));
+                    manufacturer.setCountry(rs.getString("country"));
+                    manufacturer.setWebsite(rs.getString("website"));
+                    manufacturersMap.put(manufacturer.getManufacturerId(), manufacturer);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading manufacturers: " + e.getMessage());
+        }
+
+        return manufacturersMap;
+    }
+
+    private Map<Integer, ShoeType> loadShoeTypesByIds(Set<Integer> typeIds) {
+        Map<Integer, ShoeType> typesMap = new HashMap<>();
+        if (typeIds.isEmpty()) return typesMap;
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < typeIds.size(); i++) {
+            if (i > 0) placeholders.append(",");
+            placeholders.append("?");
+        }
+
+        String query = "SELECT * FROM shoe_type WHERE type_id IN (" + placeholders + ")";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            int paramIndex = 1;
+            for (Integer id : typeIds) {
+                pstmt.setInt(paramIndex++, id);
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    ShoeType type = new ShoeType();
+                    type.setTypeId(rs.getInt("type_id"));
+                    type.setName(rs.getString("name"));
+                    typesMap.put(type.getTypeId(), type);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading shoe types: " + e.getMessage());
+        }
+
+        return typesMap;
+    }
+
+    private Map<Integer, Color> loadColorsByIds(Set<Integer> colorIds) {
+        Map<Integer, Color> colorsMap = new HashMap<>();
+        if (colorIds.isEmpty()) return colorsMap;
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < colorIds.size(); i++) {
+            if (i > 0) placeholders.append(",");
+            placeholders.append("?");
+        }
+
+        String query = "SELECT * FROM color WHERE color_id IN (" + placeholders + ")";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            int paramIndex = 1;
+            for (Integer id : colorIds) {
+                pstmt.setInt(paramIndex++, id);
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Color color = new Color();
+                    color.setColorId(rs.getInt("color_id"));
+                    color.setName(rs.getString("name"));
+                    color.setHexCode(rs.getString("hex_code"));
+                    colorsMap.put(color.getColorId(), color);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading colors: " + e.getMessage());
+        }
+
+        return colorsMap;
     }
 }

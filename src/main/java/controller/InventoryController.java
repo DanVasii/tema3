@@ -28,6 +28,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import util.LanguageManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -104,8 +105,8 @@ public class InventoryController {
 
     private ObservableList<Inventory> inventoryList;
 
-    public void initialize(ResourceBundle resources) {
-        this.resources = resources;
+    public void initialize() {
+        this.resources = LanguageManager.getResourceBundle();
         storeDAO = new StoreDAO();
         inventoryDAO = new InventoryDAO();
         shoeTypeDAO = new ShoeTypeDAO();

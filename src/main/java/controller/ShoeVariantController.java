@@ -18,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import util.LanguageManager;
 
 import java.io.File;
 import java.util.List;
@@ -71,8 +72,8 @@ public class ShoeVariantController {
     private ObservableList<ShoeVariant> variantList;
     private ResourceBundle resources;
 
-    public void initialize(ResourceBundle resources) {
-        this.resources = resources;
+    public void initialize() {
+        this.resources = LanguageManager.getResourceBundle();
         variantDAO = new ShoeVariantDAO();
         colorDAO = new ColorDAO();
         variantList = FXCollections.observableArrayList();

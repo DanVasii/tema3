@@ -21,6 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import util.LanguageManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -83,8 +84,8 @@ public class ShoeController {
     private ObservableList<Shoe> shoeList;
     private ResourceBundle resources;
 
-    public void initialize(ResourceBundle resources) {
-        this.resources = resources;
+    public void initialize() {
+        this.resources = LanguageManager.getResourceBundle();
         shoeDAO = new ShoeDAO();
         manufacturerDAO = new ManufacturerDAO();
         shoeTypeDAO = new ShoeTypeDAO();

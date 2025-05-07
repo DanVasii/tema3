@@ -23,6 +23,7 @@ public class ShoeDAO {
 
     public List<Shoe> getAllShoes() {
         List<Shoe> shoes = new ArrayList<>();
+        List<Integer> shoeIds = new ArrayList<>();
         String query = "SELECT * FROM shoe ORDER BY model";
 
         try (Connection conn = DatabaseConfig.getConnection();
@@ -30,14 +31,76 @@ public class ShoeDAO {
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                Shoe shoe = mapResultSetToShoe(rs);
+                Shoe shoe = new Shoe();
+                shoe.setShoeId(rs.getInt("shoe_id"));
+                shoe.setModel(rs.getString("model"));
+                shoe.setManufacturerId(rs.getInt("manufacturer_id"));
+                shoe.setTypeId(rs.getInt("type_id"));
+                shoe.setPrice(rs.getDouble("price"));
+                shoe.setDescription(rs.getString("description"));
                 shoes.add(shoe);
+                shoeIds.add(shoe.getShoeId());
             }
         } catch (SQLException e) {
             System.err.println("Error fetching shoes: " + e.getMessage());
+            return shoes;
+        }
+
+        if (!shoes.isEmpty()) {
+            try {
+                Map<Integer, Manufacturer> manufacturers = loadAllManufacturers();
+                Map<Integer, ShoeType> shoeTypes = loadAllShoeTypes();
+
+                for (Shoe shoe : shoes) {
+                    shoe.setManufacturer(manufacturers.get(shoe.getManufacturerId()));
+                    shoe.setType(shoeTypes.get(shoe.getTypeId()));
+                }
+            } catch (SQLException e) {
+                System.err.println("Error loading associated data: " + e.getMessage());
+            }
         }
 
         return shoes;
+    }
+
+    private Map<Integer, Manufacturer> loadAllManufacturers() throws SQLException {
+        Map<Integer, Manufacturer> manufacturers = new HashMap<>();
+        String query = "SELECT * FROM manufacturer";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                Manufacturer manufacturer = new Manufacturer();
+                manufacturer.setManufacturerId(rs.getInt("manufacturer_id"));
+                manufacturer.setName(rs.getString("name"));
+                manufacturer.setCountry(rs.getString("country"));
+                manufacturer.setWebsite(rs.getString("website"));
+                manufacturers.put(manufacturer.getManufacturerId(), manufacturer);
+            }
+        }
+
+        return manufacturers;
+    }
+
+    private Map<Integer, ShoeType> loadAllShoeTypes() throws SQLException {
+        Map<Integer, ShoeType> types = new HashMap<>();
+        String query = "SELECT * FROM shoe_type";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                ShoeType type = new ShoeType();
+                type.setTypeId(rs.getInt("type_id"));
+                type.setName(rs.getString("name"));
+                types.put(type.getTypeId(), type);
+            }
+        }
+
+        return types;
     }
 
     public Shoe getShoeById(int shoeId) {

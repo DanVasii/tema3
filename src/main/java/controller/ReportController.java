@@ -19,6 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
+import util.LanguageManager;
 
 import java.io.File;
 import java.util.List;
@@ -70,8 +71,8 @@ public class ReportController {
     private ResourceBundle resources;
     private ObservableList<Inventory> outOfStockList;
 
-    public void initialize(ResourceBundle resources) {
-        this.resources = resources;
+    public void initialize() {
+        this.resources = LanguageManager.getResourceBundle();
         storeDAO = new StoreDAO();
         inventoryDAO = new InventoryDAO();
         outOfStockList = FXCollections.observableArrayList();

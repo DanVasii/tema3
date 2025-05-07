@@ -15,6 +15,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import util.LanguageManager;
 
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -68,8 +69,8 @@ public class StatisticsController {
     private ShoeDAO shoeDAO;
     private InventoryDAO inventoryDAO;
 
-    public void initialize(ResourceBundle resources) {
-        this.resources = resources;
+    public void initialize() {
+        this.resources = LanguageManager.getResourceBundle();
         storeDAO = new StoreDAO();
         shoeDAO = new ShoeDAO();
         inventoryDAO = new InventoryDAO();
