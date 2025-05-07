@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ReportController">
+    <children>
+        <VBox prefHeight="700.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="60.0" prefWidth="1200.0" spacing="20.0">
+                    <children>
+                        <Label style="-fx-font-weight: bold;" text="%report.title">
+                            <font>
+                                <Font size="18.0" />
+                            </font>
+                        </Label>
+                        <Label text="%report.store" />
+                        <ComboBox fx:id="storeComboBox" prefWidth="200.0" />
+                        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#handleRefresh" text="%button.refresh" />
+                        <Label fx:id="totalItemsLabel" style="-fx-font-weight: bold;" text="Total: 0" />
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </padding>
+                </HBox>
+                <TableView fx:id="outOfStockTable" prefHeight="580.0" prefWidth="1200.0" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="shoeColumn" prefWidth="150.0" text="%inventory.shoe" />
+                        <TableColumn fx:id="modelColumn" prefWidth="150.0" text="%inventory.model" />
+                        <TableColumn fx:id="manufacturerColumn" prefWidth="150.0" text="%shoe.manufacturer" />
+                        <TableColumn fx:id="typeColumn" prefWidth="100.0" text="%shoe.type" />
+                        <TableColumn fx:id="colorColumn" prefWidth="100.0" text="%inventory.color" />
+                        <TableColumn fx:id="sizeColumn" prefWidth="75.0" text="%inventory.size" />
+                        <TableColumn fx:id="stockColumn" prefWidth="75.0" text="%inventory.stock" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+                <HBox alignment="CENTER_RIGHT" prefHeight="60.0" prefWidth="1200.0" spacing="20.0">
+                    <children>
+                        <Button fx:id="exportCsvButton" mnemonicParsing="false" onAction="#handleExportCsv" prefHeight="30.0" prefWidth="150.0" text="%report.exportcsv" />
+                        <Button fx:id="exportDocButton" mnemonicParsing="false" onAction="#handleExportDoc" prefHeight="30.0" prefWidth="150.0" text="%report.exportdoc" />
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </padding>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
