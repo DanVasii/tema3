@@ -29,7 +29,7 @@
                         <Label text="%statistics.charttype" />
                         <ComboBox fx:id="chartTypeComboBox" prefWidth="150.0" />
                         <Button fx:id="refreshButton" mnemonicParsing="false" text="%button.refresh" />
-                        <Label fx:id="totalItemsLabel" style="-fx-font-weight: bold;" text="%statistics.total: 0" />
+                        <Label fx:id="totalItemsLabel" style="-fx-font-weight: bold;" text="%statistics.total" />
                     </children>
                     <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

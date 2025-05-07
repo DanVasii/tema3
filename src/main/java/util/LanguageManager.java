@@ -4,13 +4,16 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class LanguageManager {
-    private static final String BUNDLE_BASE_NAME = "com.shoestoreapp.resources.i18n.messages";
+    private static final String BUNDLE_BASE_NAME = "i18n.messages";
     private static ResourceBundle resourceBundle;
     private static Locale currentLocale;
 
     public static void setLocale(Locale locale) {
+        System.out.println("LOCALE SET");
+        System.out.println(locale.getLanguage());
         currentLocale = locale;
         resourceBundle = ResourceBundle.getBundle(BUNDLE_BASE_NAME, locale);
+
     }
 
     public static void setLocale(String language) {
@@ -19,6 +22,7 @@ public class LanguageManager {
 
     public static ResourceBundle getResourceBundle() {
         if (resourceBundle == null) {
+            System.out.println("LOCALE NULL");
             // Default to English
             setLocale(Locale.ENGLISH);
         }

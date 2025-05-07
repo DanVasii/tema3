@@ -29,7 +29,6 @@ public class HelloApplication extends Application {
         this.primaryStage = primaryStage;
 
         // Inițializare manager de limbi
-        LanguageManager.setLocale(Locale.ENGLISH);
         resourceBundle = LanguageManager.getResourceBundle();
 
         try {
@@ -41,18 +40,17 @@ public class HelloApplication extends Application {
             root.setTop(menuBar);
 
             // Încărcare conținut principal
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/shoestoreapp/resources/fxml/main.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
             loader.setResources(resourceBundle);
             Parent mainContent = loader.load();
             root.setCenter(mainContent);
 
             // Creare și configurare scenă
             Scene scene = new Scene(root, 1200, 800);
-            scene.getStylesheets().add(getClass().getResource("/com/shoestoreapp/resources/css/application.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/application.css").toExternalForm());
 
-            // Configurare fereastră principală
             primaryStage.setTitle(resourceBundle.getString("application.title"));
-            primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/com/shoestoreapp/resources/images/logo.png")));
+            primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/pin.png")));
             primaryStage.setScene(scene);
             primaryStage.setOnCloseRequest(event -> {
                 event.consume();
@@ -101,7 +99,8 @@ public class HelloApplication extends Application {
     private void changeLanguage(Locale locale) {
         LanguageManager.setLocale(locale);
         resourceBundle = LanguageManager.getResourceBundle();
-
+        System.out.println("LOCALE IS" );
+        System.out.println(locale.getLanguage());
         // Reîncarcă aplicația
         try {
             start(primaryStage);

@@ -6,5 +6,10 @@ module org.example.tema3 {
 
 
     opens org.example.tema3 to javafx.fxml;
+    opens view to javafx.fxml;
+    opens model to javafx.base;
+    opens controller to javafx.fxml;
     exports org.example.tema3;
+    exports controller;
+    exports view;
 }

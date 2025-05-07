@@ -50,6 +50,17 @@ public class SearchController {
         searchField.setOnAction(event -> handleSearch());
     }
 
+    /**
+     * Setează termenul de căutare în câmpul de căutare și efectuează automat o căutare
+     * @param searchTerm Termenul de căutare
+     */
+    public void setSearchTerm(String searchTerm) {
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            searchField.setText(searchTerm);
+            handleSearch(); // Efectuăm automat căutarea cu termenul furnizat
+        }
+    }
+
     @FXML
     public void handleSearch() {
         String modelName = searchField.getText().trim();

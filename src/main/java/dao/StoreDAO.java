@@ -10,13 +10,13 @@ import org.example.tema3.DatabaseConfig;
 public class StoreDAO {
 
     public List<Store> getAllStores() {
+
         List<Store> stores = new ArrayList<>();
         String query = "SELECT * FROM store ORDER BY name";
 
         try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
-
             while (rs.next()) {
                 Store store = mapResultSetToStore(rs);
                 stores.add(store);

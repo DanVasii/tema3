@@ -102,6 +102,7 @@ public class StoreController {
     }
 
     private void loadStores() {
+        System.out.println("Loading Stores");
         storeList.clear();
         List<Store> stores = storeDAO.getAllStores();
         storeList.addAll(stores);
