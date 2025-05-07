@@ -29,12 +29,15 @@ import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import util.LanguageManager;
+import util.Observable;
+import util.Observer;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class InventoryController {
+public class InventoryController implements Observer {
 
     @FXML
     private ComboBox<Store> storeComboBox;
@@ -106,6 +109,7 @@ public class InventoryController {
     private ObservableList<Inventory> inventoryList;
 
     public void initialize() {
+
         this.resources = LanguageManager.getResourceBundle();
         storeDAO = new StoreDAO();
         inventoryDAO = new InventoryDAO();
@@ -115,22 +119,22 @@ public class InventoryController {
 
         inventoryList = FXCollections.observableArrayList();
 
-        // Inițializare ComboBox-uri
+        // Initialize ComboBoxes
         loadStores();
         loadShoeTypes();
         loadColors();
         loadManufacturers();
 
-        // Inițializare coloane tabel
+        // Initialize table columns
         setupTableColumns();
 
-        // Inițializare acțiuni butoane
+        // Initialize button actions
         viewAllButton.setOnAction(event -> handleViewAll());
         filterButton.setOnAction(event -> handleFilter());
         resetButton.setOnAction(event -> handleReset());
         searchButton.setOnAction(event -> handleSearch());
 
-        // Actualizare listener pentru selectarea magazinului
+        // Update listener for store selection
         storeComboBox.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> {
                     if (newSelection != null) {
@@ -142,8 +146,45 @@ public class InventoryController {
                     }
                 });
 
-        // Configurare pentru a permite căutare la apăsarea Enter
+        // Configure Enter key for search
         searchField.setOnAction(event -> handleSearch());
+
+        // Update UI text based on current language
+        updateUIText();
+    }
+
+    private void updateUIText() {
+        viewAllButton.setText(resources.getString("button.viewall"));
+        filterButton.setText(resources.getString("button.filter"));
+        resetButton.setText(resources.getString("button.reset"));
+        searchButton.setText(resources.getString("button.search"));
+
+        // Update table column headers
+        idColumn.setText(resources.getString("inventory.id"));
+        modelColumn.setText(resources.getString("inventory.model"));
+        manufacturerColumn.setText(resources.getString("shoe.manufacturer"));
+        typeColumn.setText(resources.getString("shoe.type"));
+        colorColumn.setText(resources.getString("inventory.color"));
+        sizeColumn.setText(resources.getString("inventory.size"));
+        stockColumn.setText(resources.getString("inventory.stock"));
+        availableColumn.setText(resources.getString("inventory.available"));
+
+        // Update search field placeholder
+        searchField.setPromptText(resources.getString("inventory.search.placeholder"));
+
+        // Update total items label
+        updateTotalItemsLabel();
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof Locale) {
+            // Update resources when language changes
+            resources = LanguageManager.getResourceBundle();
+
+            // Update UI texts
+            updateUIText();
+        }
     }
 
     private void loadStores() {

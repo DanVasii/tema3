@@ -16,11 +16,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import util.LanguageManager;
+import util.Observable;
+import util.Observer;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class StatisticsController {
+public class StatisticsController implements Observer {
 
     @FXML
     private TabPane statisticsTabPane;
@@ -70,22 +73,58 @@ public class StatisticsController {
     private InventoryDAO inventoryDAO;
 
     public void initialize() {
+
         this.resources = LanguageManager.getResourceBundle();
         storeDAO = new StoreDAO();
         shoeDAO = new ShoeDAO();
         inventoryDAO = new InventoryDAO();
 
-        // Inițializare ComboBox pentru tipul de grafic
+        // Initialize ComboBox for chart type
         chartTypeComboBox.setItems(FXCollections.observableArrayList("Bar Chart", "Pie Chart"));
         chartTypeComboBox.getSelectionModel().selectFirst();
         chartTypeComboBox.setOnAction(event -> updateCharts());
 
-        // Inițializare butoane
+        // Initialize buttons
         refreshButton.setOnAction(event -> updateCharts());
 
-        // Încărcare date inițiale
+        // Load initial data
+        updateCharts();
+
+        // Update UI text based on current language
+        updateUIText();
+    }
+
+    private void updateUIText() {
+        refreshButton.setText(resources.getString("button.refresh"));
+
+        // Update tab titles
+        storeTab.setText(resources.getString("statistics.bystore"));
+        typeTab.setText(resources.getString("statistics.bytype"));
+        manufacturerTab.setText(resources.getString("statistics.bymanufacturer"));
+        colorTab.setText(resources.getString("statistics.bycolor"));
+        outOfStockTab.setText(resources.getString("statistics.outofstock"));
+
+        // Update chart titles
+        typePieChart.setTitle(resources.getString("statistics.bytype"));
+        manufacturerPieChart.setTitle(resources.getString("statistics.bymanufacturer"));
+        colorPieChart.setTitle(resources.getString("statistics.bycolor"));
+
+
+        // Update charts with new language
         updateCharts();
     }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof Locale) {
+            // Update resources when language changes
+            resources = LanguageManager.getResourceBundle();
+
+            // Update UI texts
+            updateUIText();
+        }
+    }
+
 
     private void updateCharts() {
         updateStoreChart();

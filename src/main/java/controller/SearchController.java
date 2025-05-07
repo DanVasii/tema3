@@ -18,15 +18,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import util.LanguageManager;
+import util.Observable;
+import util.Observer;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class SearchController {
+public class SearchController implements Observer {
 
     @FXML
     private TextField searchField;
@@ -39,49 +38,81 @@ public class SearchController {
 
     private InventoryDAO inventoryDAO;
     private ResourceBundle resources;
+    private String currentSearchTerm;
+    private List<Inventory> currentSearchResults;
 
     public void initialize() {
+
         this.resources = LanguageManager.getResourceBundle();
         inventoryDAO = new InventoryDAO();
 
-        // Configurare acțiuni butoane
+        // Configure button actions
         searchButton.setOnAction(event -> handleSearch());
 
-        // Configurare pentru a permite căutare la apăsarea Enter
+        // Configure Enter key for search
         searchField.setOnAction(event -> handleSearch());
+
+        // Update UI text based on current language
+        updateUIText();
     }
 
-    /**
-     * Setează termenul de căutare în câmpul de căutare și efectuează automat o căutare
-     * @param searchTerm Termenul de căutare
-     */
+    private void updateUIText() {
+        searchButton.setText(resources.getString("button.search"));
+
+        // If there are search results, re-display them with updated language
+        if (currentSearchResults != null && !currentSearchResults.isEmpty()) {
+            displaySearchResults(currentSearchResults);
+        } else if (currentSearchTerm != null && currentSearchTerm.isEmpty()) {
+            showNoResultsMessage(resources.getString("search.empty"));
+        } else if (currentSearchResults != null) {
+            showNoResultsMessage(resources.getString("search.no.results"));
+        }
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof Locale) {
+            // Update resources when language changes
+            resources = LanguageManager.getResourceBundle();
+
+            // Update UI texts
+            updateUIText();
+        }
+    }
+
+
+
     public void setSearchTerm(String searchTerm) {
         if (searchTerm != null && !searchTerm.isEmpty()) {
+            this.currentSearchTerm = searchTerm;
             searchField.setText(searchTerm);
-            handleSearch(); // Efectuăm automat căutarea cu termenul furnizat
+            handleSearch(); // Automatically search with the provided term
         }
     }
 
     @FXML
     public void handleSearch() {
         String modelName = searchField.getText().trim();
+        this.currentSearchTerm = modelName;
 
         if (modelName.isEmpty()) {
-            // Afișare mesaj pentru a introduce un termen de căutare
+            // Display message to enter a search term
             showNoResultsMessage(resources.getString("search.empty"));
+            this.currentSearchResults = null;
             return;
         }
 
-        // Căutare în baza de date
+        // Search in database
         List<Inventory> searchResults = inventoryDAO.searchInventoryByModel(modelName);
+        this.currentSearchResults = searchResults;
 
         if (searchResults.isEmpty()) {
-            // Afișare mesaj pentru niciun rezultat
+            // Display message for no results
             showNoResultsMessage(resources.getString("search.no.results"));
             return;
         }
 
-        // Organizare rezultate după model și culoare
+        // Organize results by model and color
         displaySearchResults(searchResults);
     }
 

@@ -1,6 +1,7 @@
 package controller;
 
 import dao.StoreDAO;
+import javafx.fxml.Initializable;
 import model.Store;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,12 +9,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import util.LanguageManager;
+import util.Observable;
+import util.Observer;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class StoreController {
+public class StoreController  implements Observer {
 
     @FXML
     private TableView<Store> storeTable;
@@ -68,11 +72,12 @@ public class StoreController {
     private ResourceBundle resources;
 
     public void initialize() {
+
         this.resources = LanguageManager.getResourceBundle();
         storeDAO = new StoreDAO();
         storeList = FXCollections.observableArrayList();
 
-        // Inițializează coloanele tabelului
+        // Initialize table columns
         idColumn.setCellValueFactory(new PropertyValueFactory<>("storeId"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
@@ -80,7 +85,7 @@ public class StoreController {
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         hoursColumn.setCellValueFactory(new PropertyValueFactory<>("openingHours"));
 
-        // Adaugă un listener pentru selecție
+        // Add listener for selection
         storeTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> {
                     if (newSelection != null) {
@@ -94,14 +99,42 @@ public class StoreController {
                     }
                 });
 
-        // Dezactivează butoanele update și delete până când utilizatorul selectează un magazin
+        // Disable update and delete buttons until user selects a store
         updateButton.setDisable(true);
         deleteButton.setDisable(true);
 
-        // Încarcă magazinele
+        // Load stores
         loadStores();
+
+        // Update UI text based on current language
+        updateUIText();
     }
 
+    private void updateUIText() {
+        addButton.setText(resources.getString("button.add"));
+        updateButton.setText(resources.getString("button.update"));
+        deleteButton.setText(resources.getString("button.delete"));
+        clearButton.setText(resources.getString("button.clear"));
+
+        // Update table column headers
+        idColumn.setText(resources.getString("store.id"));
+        nameColumn.setText(resources.getString("store.name"));
+        addressColumn.setText(resources.getString("store.address"));
+        phoneColumn.setText(resources.getString("store.phone"));
+        emailColumn.setText(resources.getString("store.email"));
+        hoursColumn.setText(resources.getString("store.hours"));
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof Locale) {
+            // Update resources when language changes
+            resources = LanguageManager.getResourceBundle();
+
+            // Update UI texts
+            updateUIText();
+        }
+    }
     private void loadStores() {
         System.out.println("Loading Stores");
         storeList.clear();

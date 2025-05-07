@@ -3,6 +3,7 @@ package controller;
 import dao.ManufacturerDAO;
 import dao.ShoeDAO;
 import dao.ShoeTypeDAO;
+import javafx.fxml.Initializable;
 import model.Manufacturer;
 import model.Shoe;
 import model.ShoeType;
@@ -22,13 +23,16 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import util.LanguageManager;
+import util.Observable;
+import util.Observer;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class ShoeController {
+public class ShoeController implements Observer {
 
     @FXML
     private TableView<Shoe> shoeTable;
@@ -85,17 +89,18 @@ public class ShoeController {
     private ResourceBundle resources;
 
     public void initialize() {
+
         this.resources = LanguageManager.getResourceBundle();
         shoeDAO = new ShoeDAO();
         manufacturerDAO = new ManufacturerDAO();
         shoeTypeDAO = new ShoeTypeDAO();
         shoeList = FXCollections.observableArrayList();
 
-        // Inițializăm coloanele tabelului
+        // Initialize table columns
         idColumn.setCellValueFactory(new PropertyValueFactory<>("shoeId"));
         modelColumn.setCellValueFactory(new PropertyValueFactory<>("model"));
 
-        // Pentru coloanele care afișează atribute de obiecte asociate, folosim un wrapper
+        // For columns displaying attributes of associated objects, use a wrapper
         manufacturerColumn.setCellValueFactory(cellData -> {
             Shoe shoe = cellData.getValue();
             return javafx.beans.binding.Bindings.createStringBinding(
@@ -112,7 +117,7 @@ public class ShoeController {
 
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
 
-        // Adăugăm un listener pentru selecție
+        // Add a listener for selection
         shoeTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> {
                     if (newSelection != null) {
@@ -128,17 +133,45 @@ public class ShoeController {
                     }
                 });
 
-        // Dezactivăm butoanele update, delete și variants până când utilizatorul selectează un articol
+        // Disable update, delete, and variants buttons until user selects an item
         updateButton.setDisable(true);
         deleteButton.setDisable(true);
         variantsButton.setDisable(true);
 
-        // Încărcăm producătorii și tipurile de încălțăminte în combo box-uri
+        // Load manufacturers and shoe types into combo boxes
         loadManufacturers();
         loadShoeTypes();
 
-        // Încărcăm lista de încălțăminte
+        // Load the list of shoes
         loadShoes();
+
+        // Update UI text based on current language
+        updateUIText();
+    }
+
+    private void updateUIText() {
+        addButton.setText(resources.getString("button.add"));
+        updateButton.setText(resources.getString("button.update"));
+        deleteButton.setText(resources.getString("button.delete"));
+        clearButton.setText(resources.getString("button.clear"));
+
+        // Update table column headers
+        idColumn.setText(resources.getString("shoe.id"));
+        modelColumn.setText(resources.getString("shoe.model"));
+        manufacturerColumn.setText(resources.getString("shoe.manufacturer"));
+        typeColumn.setText(resources.getString("shoe.type"));
+        priceColumn.setText(resources.getString("shoe.price"));
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof Locale) {
+            // Update resources when language changes
+            resources = LanguageManager.getResourceBundle();
+
+            // Update UI texts
+            updateUIText();
+        }
     }
 
     private void loadManufacturers() {

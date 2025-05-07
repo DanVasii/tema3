@@ -1,4 +1,3 @@
-// MainView.java - exemplu de controller care implementează Observer
 package view;
 
 import javafx.fxml.FXML;
@@ -11,7 +10,7 @@ import util.Observer;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class MainView {
+public class MainView implements Observer {
 
     @FXML
     private TabPane mainTabPane;
@@ -32,14 +31,14 @@ public class MainView {
     private Tab statisticsTab;
 
     public void initialize() {
-        // Actualizare UI cu limba curentă
+        // Update UI with current language
         updateUITexts();
     }
 
     private void updateUITexts() {
         ResourceBundle resources = LanguageManager.getResourceBundle();
 
-        // Actualizare text tab-uri
+        // Update tab texts
         storesTab.setText(resources.getString("tab.stores"));
         shoesTab.setText(resources.getString("tab.shoes"));
         inventoryTab.setText(resources.getString("tab.inventory"));
@@ -47,5 +46,11 @@ public class MainView {
         statisticsTab.setText(resources.getString("tab.statistics"));
     }
 
-
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof Locale) {
+            // Update UI texts when language changes
+            updateUITexts();
+        }
+    }
 }

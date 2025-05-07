@@ -19,13 +19,16 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import util.LanguageManager;
+import util.Observable;
+import util.Observer;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class ShoeVariantController {
+public class ShoeVariantController implements Observer {
 
     @FXML
     private Label shoeModelLabel;
@@ -73,12 +76,13 @@ public class ShoeVariantController {
     private ResourceBundle resources;
 
     public void initialize() {
+
         this.resources = LanguageManager.getResourceBundle();
         variantDAO = new ShoeVariantDAO();
         colorDAO = new ColorDAO();
         variantList = FXCollections.observableArrayList();
 
-        // Inițializăm coloanele tabelului
+        // Initialize table columns
         idColumn.setCellValueFactory(new PropertyValueFactory<>("variantId"));
 
         colorColumn.setCellValueFactory(cellData -> {
@@ -90,7 +94,7 @@ public class ShoeVariantController {
 
         imagePathColumn.setCellValueFactory(new PropertyValueFactory<>("imagePath"));
 
-        // Adăugăm un listener pentru selecție
+        // Add a listener for selection
         variantTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> {
                     if (newSelection != null) {
@@ -104,13 +108,41 @@ public class ShoeVariantController {
                     }
                 });
 
-        // Dezactivăm butoanele update și delete până când utilizatorul selectează o variantă
+        // Disable update and delete buttons until user selects a variant
         updateButton.setDisable(true);
         deleteButton.setDisable(true);
 
-        // Inițializare acțiuni butoane
+        // Initialize button actions
         browseButton.setOnAction(event -> handleBrowseButton());
         closeButton.setOnAction(event -> handleCloseButton());
+
+        // Update UI text based on current language
+        updateUIText();
+    }
+
+    private void updateUIText() {
+        browseButton.setText(resources.getString("button.browse"));
+        addButton.setText(resources.getString("button.add"));
+        updateButton.setText(resources.getString("button.update"));
+        deleteButton.setText(resources.getString("button.delete"));
+        clearButton.setText(resources.getString("button.clear"));
+        closeButton.setText(resources.getString("button.close"));
+
+        // Update table column headers and labels
+        idColumn.setText(resources.getString("inventory.id"));
+        colorColumn.setText(resources.getString("inventory.color"));
+        imagePathColumn.setText(resources.getString("inventory.image.path"));
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof Locale) {
+            // Update resources when language changes
+            resources = LanguageManager.getResourceBundle();
+
+            // Update UI texts
+            updateUIText();
+        }
     }
 
     // Metoda pentru a inițializa datele controlerului cu încălțămintea selectată

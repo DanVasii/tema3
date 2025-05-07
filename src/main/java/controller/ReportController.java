@@ -6,8 +6,7 @@ import model.Inventory;
 import model.Shoe;
 import model.ShoeVariant;
 import model.Store;
-import util.CsvExporter;
-import util.DocExporter;
+import util.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,13 +18,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
-import util.LanguageManager;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class ReportController {
+public class ReportController implements Observer {
 
     @FXML
     private ComboBox<Store> storeComboBox;
@@ -72,27 +71,28 @@ public class ReportController {
     private ObservableList<Inventory> outOfStockList;
 
     public void initialize() {
+
         this.resources = LanguageManager.getResourceBundle();
         storeDAO = new StoreDAO();
         inventoryDAO = new InventoryDAO();
         outOfStockList = FXCollections.observableArrayList();
 
-        // Inițializare ComboBox magazine
+        // Initialize store ComboBox
         loadStores();
 
-        // Inițializare coloane tabel
+        // Initialize table columns
         setupTableColumns();
 
-        // Inițializare acțiuni butoane
+        // Initialize button actions
         refreshButton.setOnAction(event -> handleRefresh());
         exportCsvButton.setOnAction(event -> handleExportCsv());
         exportDocButton.setOnAction(event -> handleExportDoc());
 
-        // Inițial butoanele export sunt dezactivate
+        // Initially disable export buttons
         exportCsvButton.setDisable(true);
         exportDocButton.setDisable(true);
 
-        // Actualizare listener pentru selectarea magazinului
+        // Update listener for store selection
         storeComboBox.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> {
                     if (newSelection != null) {
@@ -105,7 +105,40 @@ public class ReportController {
                         exportDocButton.setDisable(true);
                     }
                 });
+
+        // Update UI text based on current language
+        updateUIText();
     }
+
+    private void updateUIText() {
+        refreshButton.setText(resources.getString("button.refresh"));
+        exportCsvButton.setText(resources.getString("report.exportcsv"));
+        exportDocButton.setText(resources.getString("report.exportdoc"));
+
+        // Update table column headers
+        shoeColumn.setText(resources.getString("inventory.shoe"));
+        modelColumn.setText(resources.getString("inventory.model"));
+        manufacturerColumn.setText(resources.getString("shoe.manufacturer"));
+        typeColumn.setText(resources.getString("shoe.type"));
+        colorColumn.setText(resources.getString("inventory.color"));
+        sizeColumn.setText(resources.getString("inventory.size"));
+        stockColumn.setText(resources.getString("inventory.stock"));
+
+        // Update total items label
+        updateTotalItemsLabel();
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof Locale) {
+            // Update resources when language changes
+            resources = LanguageManager.getResourceBundle();
+
+            // Update UI texts
+            updateUIText();
+        }
+    }
+
 
     private void loadStores() {
         List<Store> stores = storeDAO.getAllStores();
